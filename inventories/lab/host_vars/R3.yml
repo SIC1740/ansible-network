@@ -1,0 +1,4 @@
+# inventories/lab/host_vars/R3.yml
+# ================================
+hostname_cfg: R3-LAB
+snmp_location: DC-Hanoi

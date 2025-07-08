@@ -1,0 +1,4 @@
+---
+- name: Log_backup_path
+  ansible.builtin.debug:
+    msg: "Backup saved to {{ backup_result.backup_path }}"

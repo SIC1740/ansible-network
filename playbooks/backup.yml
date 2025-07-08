@@ -1,0 +1,7 @@
+---
+- name: BACKUP CISCO CONFIG
+  hosts: routers
+  gather_facts: false
+  roles:
+    - role: backup_config     # gọi role vừa tạo
+

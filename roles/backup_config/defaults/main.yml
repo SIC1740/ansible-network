@@ -1,0 +1,3 @@
+# roles/backup_config/defaults/main.yml
+backup_root: "./backups"               # Có thể override trong group_vars
+backup_mode: running-config            # running‑config / startup‑config

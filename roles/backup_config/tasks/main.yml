@@ -1,0 +1,18 @@
+---
+- name: "Tạo thư mục backup trên control node"
+  ansible.builtin.file:
+    path: "{{ backup_root }}/{{ inventory_hostname }}"
+    state: directory
+    mode: '0755'
+  delegate_to: localhost
+  run_once: false
+
+- name: "Sao lưu router ({{ backup_mode }})"
+  cisco.ios.ios_config:
+    backup: true
+    backup_options:
+      dir_path: "{{ backup_root }}/{{ inventory_hostname }}"
+      filename: "{{ lookup('pipe', 'date +%Y%m%dT%H%M%S') }}.cfg"
+  tags: backup
+  register: backup_result
+  notify: Log backup path
