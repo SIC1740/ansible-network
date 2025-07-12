@@ -1,7 +1,26 @@
 # inventories/lab/group_vars/routers.yml
-# ============================
-ntp_server: 10.10.10.1            # dùng chung cho tất cả router
-backup_dir: "{{ playbook_dir }}/../backups/{{ inventory_hostname }}"
-backup_root: "/tmp/router_backups"
-# group_vars/routers.yml
-ansible_ssh_common_args: '-o KexAlgorithms=+diffie-hellman-group-exchange-sha1,+diffie-hellman-group14-sha1,+diffie-hellman-group1-sha1 -o HostKeyAlgorithms=+ssh-rsa -o Ciphers=+aes128-cbc,+aes256-cbc'
+# ======================================
+
+# 1. Định danh & kết nối Cisco
+ansible_network_os: cisco.ios.ios
+ansible_connection: ansible.netcommon.network_cli
+ansible_become: true
+ansible_become_method: enable
+
+# 2. Đường dẫn chuẩn
+golden_dir:  "{{ playbook_dir }}/../golden"
+running_dir: "{{ playbook_dir }}/../running"
+diff_dir:    "{{ playbook_dir }}/../diff"
+backup_root: "{{ playbook_dir }}/../backups"
+
+# 3. Các mẫu dòng bỏ qua khi diff
+ignore_lines:
+  - '^!Time'
+  - '^uptime is'
+  - '^ntp clock-period'
+  - '^license udi'
+  - '^crypto key generate'
+
+# 4. Thông số chung cho toàn mạng
+ntp_server: 10.10.10.1
+

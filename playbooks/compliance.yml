@@ -1,89 +1,145 @@
 ---
-- name: Compliance check against golden configs
+- name: Compliance check – Cisco IOS vs Golden
   hosts: routers
   gather_facts: false
+  tags:
+    - compliance
 
+  # Đường dẫn & biến chung
   vars:
-    # Đường dẫn tới file golden cho từng router
-    golden_dir: "{{ playbook_dir }}/../golden/{{ inventory_hostname }}"
-    # Patterns để bỏ qua các dòng biến động khi so sánh
-    ignore_lines:
-      - '^!Time'
-      - '^uptime is'
-      - '^ntp clock-period'
-      - '^license udi'
-      - '^crypto key generate'
-    # Tạo timestamp để đặt tên file diff
-    timestamp: "{{ lookup('pipe', 'date +%Y%m%dT%H%M%S') }}"
+    # thư mục gốc khai báo trong group_vars: golden_dir: "{{ playbook_dir }}/../golden"
+    timestamp:     "{{ lookup('pipe', 'date +%Y%m%dT%H%M%S') }}"
+    golden_file:   "{{ golden_dir }}/{{ inventory_hostname }}/base.cfg"   # ★ ĐƯỜNG DẪN MỚI
+    running_file:  "{{ running_dir }}/{{ inventory_hostname }}.cfg"
+    diff_file:     "{{ diff_dir }}/{{ inventory_hostname }}_{{ timestamp }}.patch"
 
+  ####################################################################
+  # PRE-TASKS – kiểm tra & tạo thư mục
+  ####################################################################
   pre_tasks:
-    - name: Tạo thư mục diff nếu chưa tồn tại
+    - name: Ensure local directories exist
       file:
-        path: "{{ playbook_dir }}/diff"
+        path: "{{ item }}"
         state: directory
+      with_items:
+        - "{{ golden_dir }}"
+        - "{{ running_dir }}"
+        - "{{ diff_dir }}"
       delegate_to: localhost
       run_once: true
 
+    - name: Check golden file exists
+      delegate_to: localhost
+      stat:
+        path: "{{ golden_file }}"
+      register: gold_stat
+
+    - name: Abort if golden missing
+      fail:
+        msg: "Golden config {{ golden_file }} not found – hãy tạo file trước khi chạy compliance."
+      when: not gold_stat.stat.exists
+
+  ####################################################################
+  # TASKS – lấy cấu hình, so sánh và báo cáo
+  ####################################################################
   tasks:
-    - name: Tắt paging trên thiết bị
+    - name: Disable paging
       ansible.netcommon.cli_command:
         command: terminal length 0
-      vars:
-        ansible_become: true
-        ansible_become_method: enable
 
-    - name: Lấy running-config hiện tại
-      ansible.netcommon.cli_command:
-        command: show running-config
-      register: running_cfg
-      vars:
-        ansible_become: true
-        ansible_become_method: enable
+    - name: Fetch running-config
+      cisco.ios.ios_command:
+        commands: show running-config
+      register: run_out
 
-    - name: Đọc golden config từ file
-      ansible.builtin.slurp:
-        src: "{{ golden_dir }}/base.cfg"
+    - name: Save running-config locally
+      copy:
+        content: "{{ run_out.stdout[0] | trim + '\n' }}"
+        dest: "{{ running_file }}"
+      delegate_to: localhost
+
+    - name: Filter dynamic lines (running)
+      set_fact:
+        running_filtered: >-
+          {{
+            (run_out.stdout[0] | trim).splitlines()
+            | reject('match', ignore_lines | join('|'))
+            | list
+          }}
+
+    - name: Load and filter golden config
+      delegate_to: localhost
+      slurp:
+        src: "{{ golden_file }}"
       register: golden_cfg
 
-    - name: Chuyển nội dung running-config và golden thành danh sách dòng
+    - name: Set golden_filtered fact
       set_fact:
-        before_lines: "{{ running_cfg.stdout[0].splitlines() }}"
-        after_lines:  "{{ (golden_cfg.content | b64decode).splitlines() }}"
+        golden_filtered: >-
+          {{
+            (golden_cfg.content | b64decode).splitlines()
+            | reject('match', ignore_lines | join('|'))
+            | list
+          }}
 
-    - name: Lọc bỏ các dòng biến động trong running-config
-      set_fact:
-        before_filtered: "{{ before_lines | reject('match', item) | list }}"
-      loop: "{{ ignore_lines }}"
-      loop_control:
-        loop_var: item
+    - name: Write filtered running to temp file
+      delegate_to: localhost
+      tempfile:
+        state: file
+        suffix: ".cfg"
+      register: temp_run
 
-    - name: Lọc bỏ các dòng biến động trong golden config
-      set_fact:
-        after_filtered: "{{ after_lines | reject('match', item) | list }}"
-      loop: "{{ ignore_lines }}"
-      loop_control:
-        loop_var: item
+    - name: Write content to {{ temp_run.path }}
+      delegate_to: localhost
+      copy:
+        content: "{{ running_filtered | join('\n') + '\n' }}"
+        dest: "{{ temp_run.path }}"
 
-    - name: Tạo nội dung diff nếu có thay đổi
-      set_fact:
-        diff_content: |
-          {% for line in before_filtered | difference(after_filtered) %}
-          - {{ line }}
-          {% endfor %}
-          {% for line in after_filtered | difference(before_filtered) %}
-          + {{ line }}
-          {% endfor %}
-      when: before_filtered != after_filtered
+    - name: Write filtered golden to temp file
+      delegate_to: localhost
+      tempfile:
+        state: file
+        suffix: ".cfg"
+      register: temp_gold
 
-    - name: Ghi diff ra file nếu non-compliant
-      ansible.builtin.copy:
-        dest: "{{ playbook_dir }}/diff/{{ inventory_hostname }}_{{ timestamp }}.patch"
-        content: "{{ diff_content }}"
-      when: before_filtered != after_filtered
+    - name: Write content to {{ temp_gold.path }}
+      delegate_to: localhost
+      copy:
+        content: "{{ golden_filtered | join('\n') + '\n' }}"
+        dest: "{{ temp_gold.path }}"
 
-    - name: Thông báo trạng thái compliance
-      ansible.builtin.debug:
-        msg: >-
-          {{ inventory_hostname }}
-          {{ 'NON-COMPLIANT ⚠️' if before_filtered != after_filtered else 'COMPLIANT ✅' }}
+    - name: Unified diff running vs golden
+      delegate_to: localhost
+      shell: diff -u "{{ temp_gold.path }}" "{{ temp_run.path }}" || true
+      register: diff_out
+      changed_when: diff_out.stdout | length > 0
+
+    - name: Show diff
+      debug:
+        msg: "{{ diff_out.stdout | default('✔ No difference') }}"
+
+    - name: Save diff when non-compliant
+      delegate_to: localhost
+      copy:
+        content: "{{ diff_out.stdout }}"
+        dest: "{{ diff_file }}"
+      when: diff_out.stdout | length > 0
+
+    - name: Fail if non-compliant
+      fail:
+        msg: "⚠️ {{ inventory_hostname }} NON-COMPLIANT – xem diff ở {{ diff_file }}"
+      when: diff_out.stdout | length > 0
+
+  ####################################################################
+  # POST-TASKS – dọn dẹp file tạm
+  ####################################################################
+  post_tasks:
+    - name: Cleanup temp files
+      delegate_to: localhost
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "{{ temp_run.path }}"
+        - "{{ temp_gold.path }}"
 
