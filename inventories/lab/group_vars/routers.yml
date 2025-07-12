@@ -3,4 +3,5 @@
 ntp_server: 10.10.10.1            # dùng chung cho tất cả router
 backup_dir: "{{ playbook_dir }}/../backups/{{ inventory_hostname }}"
 backup_root: "/tmp/router_backups"
-
+# group_vars/routers.yml
+ansible_ssh_common_args: '-o KexAlgorithms=+diffie-hellman-group-exchange-sha1,+diffie-hellman-group14-sha1,+diffie-hellman-group1-sha1 -o HostKeyAlgorithms=+ssh-rsa -o Ciphers=+aes128-cbc,+aes256-cbc'

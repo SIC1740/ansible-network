@@ -1,0 +1,89 @@
+---
+- name: Compliance check against golden configs
+  hosts: routers
+  gather_facts: false
+
+  vars:
+    # Đường dẫn tới file golden cho từng router
+    golden_dir: "{{ playbook_dir }}/../golden/{{ inventory_hostname }}"
+    # Patterns để bỏ qua các dòng biến động khi so sánh
+    ignore_lines:
+      - '^!Time'
+      - '^uptime is'
+      - '^ntp clock-period'
+      - '^license udi'
+      - '^crypto key generate'
+    # Tạo timestamp để đặt tên file diff
+    timestamp: "{{ lookup('pipe', 'date +%Y%m%dT%H%M%S') }}"
+
+  pre_tasks:
+    - name: Tạo thư mục diff nếu chưa tồn tại
+      file:
+        path: "{{ playbook_dir }}/diff"
+        state: directory
+      delegate_to: localhost
+      run_once: true
+
+  tasks:
+    - name: Tắt paging trên thiết bị
+      ansible.netcommon.cli_command:
+        command: terminal length 0
+      vars:
+        ansible_become: true
+        ansible_become_method: enable
+
+    - name: Lấy running-config hiện tại
+      ansible.netcommon.cli_command:
+        command: show running-config
+      register: running_cfg
+      vars:
+        ansible_become: true
+        ansible_become_method: enable
+
+    - name: Đọc golden config từ file
+      ansible.builtin.slurp:
+        src: "{{ golden_dir }}/base.cfg"
+      register: golden_cfg
+
+    - name: Chuyển nội dung running-config và golden thành danh sách dòng
+      set_fact:
+        before_lines: "{{ running_cfg.stdout[0].splitlines() }}"
+        after_lines:  "{{ (golden_cfg.content | b64decode).splitlines() }}"
+
+    - name: Lọc bỏ các dòng biến động trong running-config
+      set_fact:
+        before_filtered: "{{ before_lines | reject('match', item) | list }}"
+      loop: "{{ ignore_lines }}"
+      loop_control:
+        loop_var: item
+
+    - name: Lọc bỏ các dòng biến động trong golden config
+      set_fact:
+        after_filtered: "{{ after_lines | reject('match', item) | list }}"
+      loop: "{{ ignore_lines }}"
+      loop_control:
+        loop_var: item
+
+    - name: Tạo nội dung diff nếu có thay đổi
+      set_fact:
+        diff_content: |
+          {% for line in before_filtered | difference(after_filtered) %}
+          - {{ line }}
+          {% endfor %}
+          {% for line in after_filtered | difference(before_filtered) %}
+          + {{ line }}
+          {% endfor %}
+      when: before_filtered != after_filtered
+
+    - name: Ghi diff ra file nếu non-compliant
+      ansible.builtin.copy:
+        dest: "{{ playbook_dir }}/diff/{{ inventory_hostname }}_{{ timestamp }}.patch"
+        content: "{{ diff_content }}"
+      when: before_filtered != after_filtered
+
+    - name: Thông báo trạng thái compliance
+      ansible.builtin.debug:
+        msg: >-
+          {{ inventory_hostname }}
+          {{ 'NON-COMPLIANT ⚠️' if before_filtered != after_filtered else 'COMPLIANT ✅' }}
+
