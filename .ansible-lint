@@ -1,0 +1,4 @@
+skip_list:
+  - experimental
+  - yaml[comments]
+verbosity: 1

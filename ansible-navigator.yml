@@ -1,0 +1,9 @@
+---
+ansible-navigator:
+  execution-environment:
+    enabled: true
+    image: my-ee:latest
+    container-engine: docker
+    pull:
+      policy: never
+

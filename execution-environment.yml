@@ -1,0 +1,12 @@
+---
+version: 1 # Hoặc version: 3, tùy thuộc vào phiên bản của bạn, nhưng cấu trúc này hoạt động cho cả hai
+
+images:
+  base_image:
+    name: quay.io/ansible/creator-ee:latest
+
+dependencies:
+  galaxy: requirements.yml
+  # python: requirements.txt  # Bỏ comment nếu bạn có file requirements.txt
+  # system: bindep.txt        # Bỏ comment nếu bạn có file bindep.txt
+

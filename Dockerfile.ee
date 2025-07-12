@@ -1,0 +1,15 @@
+# Base EE image từ Ansible
+FROM quay.io/ansible/creator-ee:latest
+
+# Tạo thư mục collection chuẩn
+RUN mkdir -p /usr/share/ansible/collections/ansible_collections
+
+# Copy toàn bộ collection offline vào đúng path
+COPY offline_collections/ansible_collections/ /usr/share/ansible/collections/ansible_collections/
+
+# (Tuỳ chọn) kiểm tra version Ansible và collection khi build
+RUN ansible --version && \
+    ansible-galaxy collection list
+
+# Clean up nếu cần (ví dụ xóa file tạm)
+
