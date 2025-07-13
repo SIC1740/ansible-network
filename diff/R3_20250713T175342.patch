@@ -1,0 +1,10 @@
+--- /tmp/ansible.2f728ixp.cfg	2025-07-13 17:53:41.735545635 +0700
++++ /tmp/ansible.8nk9fpte.cfg	2025-07-13 17:53:40.740295171 +0700
+@@ -2,6 +2,7 @@
+ 
+   
+ !
++!
+ version 15.7
+ service timestamps debug datetime msec
+ service timestamps log datetime msec

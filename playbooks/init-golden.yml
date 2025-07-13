@@ -1,0 +1,16 @@
+---
+- name: Capture running-config và lưu làm golden
+  hosts: routers          # hoặc --limit R2,R3 khi chạy
+  gather_facts: false
+  tasks:
+    - name: Lấy running-config
+      cisco.ios.ios_command:
+        commands: show running-config
+      register: run_out
+
+    - name: Ghi ra golden/<host>/base.cfg
+      delegate_to: localhost
+      copy:
+        dest: "{{ golden_dir }}/{{ inventory_hostname }}/base.cfg"
+        content: "{{ run_out.stdout[0] | trim + '\n' }}"
+        mode: '0644'

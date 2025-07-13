@@ -20,7 +20,10 @@ ignore_lines:
   - '^ntp clock-period'
   - '^license udi'
   - '^crypto key generate'
-
+  - '^Current configuration'
+  - '^! Last configuration change'
+  - '^!$'          # ← dòng chỉ có duy nhất dấu !
+  - '^!\\s*$'      # ← dòng ! kèm khoảng trắng (phòng hờ)
 # 4. Thông số chung cho toàn mạng
 ntp_server: 10.10.10.1
 
