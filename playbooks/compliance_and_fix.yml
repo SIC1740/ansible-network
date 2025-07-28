@@ -1,0 +1,98 @@
+---
+- name: Compliance & Auto-Restore – Cisco IOS
+  hosts: routers
+  connection: network_cli
+  gather_facts: false
+
+###############################################################################
+# 0. BIẾN DÙNG CHUNG
+###############################################################################
+  vars:
+    golden_dir: "{{ playbook_dir }}/../golden"
+    golden_file: "{{ golden_dir }}/{{ inventory_hostname }}/base.cfg"
+    ignore_lines:
+      - '^! Last configuration change'
+      - '^ntp clock-period'
+
+###############################################################################
+# 1. DRIFT-DETECTION – chạy ở cả TAG check & fix (read-only)
+###############################################################################
+  tasks:
+    - name: 1️⃣ Compare running ↔ golden (check-mode + diff)
+      cisco.ios.ios_config:
+        diff_against: intended
+        intended_config: "{{ lookup('file', golden_file) }}"
+        diff_ignore_lines: "{{ ignore_lines }}"
+        match: line
+        replace: line
+        save_when: never
+      check_mode: yes
+      register: compliance
+      tags: [check, fix]
+
+    - name: 2️⃣ Hiển thị diff khi NON-COMPLIANT
+      debug:
+        var: compliance.diff
+      when: compliance.changed
+      tags: [check, fix]
+
+###############################################################################
+# 2. BACKUP & RESTORE – chỉ chạy khi lệch chuẩn
+###############################################################################
+    - name: 3️⃣ Backup cấu hình trước khi khôi phục
+      cisco.ios.ios_config:
+        backup: yes
+      when: compliance.changed
+      changed_when: false
+      tags: fix
+
+    # ---- NEW: xóa banner motd bằng ios_config ------------------------------
+    - name: 4️⃣ Buộc xoá hoàn toàn banner MOTD
+      cisco.ios.ios_config:
+        lines: "no banner motd"
+      when: compliance.changed
+      tags: fix
+    # ------------------------------------------------------------------------
+
+    - name: 5️⃣ Khôi phục các dòng thiếu từ golden
+      cisco.ios.ios_config:
+        src: "{{ golden_file }}"
+        match: line
+        replace: line
+        save_when: modified
+      when: compliance.changed
+      tags: fix
+
+    # ---- NEW: lưu startup-config khi đã sửa -------------------------------
+    - name: 6️⃣ Lưu cấu hình vào NVRAM
+      cisco.ios.ios_config:
+        save_when: always
+      when: compliance.changed
+      tags: fix
+    # ------------------------------------------------------------------------
+
+###############################################################################
+# 3. FINAL VERIFICATION – bảo đảm idempotent
+###############################################################################
+    - name: 7️⃣ Xác nhận cấu hình đã khớp sau khôi phục
+      cisco.ios.ios_config:
+        diff_against: intended
+        intended_config: "{{ lookup('file', golden_file) }}"
+        diff_ignore_lines: "{{ ignore_lines }}"
+        match: line
+        replace: line
+        save_when: never
+      check_mode: yes
+      register: final_state
+      when: compliance.changed
+      tags: fix
+
+    - name: 8️⃣ Báo thành công nếu không còn diff
+      debug:
+        msg: "✅ {{ inventory_hostname }} compliant sau khôi phục"
+      when:
+        - compliance.changed
+        - final_state is defined
+        - not final_state.changed
+      tags: fix
+

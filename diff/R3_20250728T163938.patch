@@ -1,0 +1,10 @@
+--- /tmp/ansible.wco876sa.cfg	2025-07-28 16:39:38.180926146 +0700
++++ /tmp/ansible.3i8dimg2.cfg	2025-07-28 16:39:37.146119348 +0700
+@@ -54,6 +54,7 @@
+  permit 10.0.0.0 0.0.0.255
+ ipv6 ioam timestamp
+ control-plane
++banner motd ^CC  Hacked test banner  ^C
+ line con 0
+  logging synchronous
+ line aux 0
