@@ -1,0 +1,55 @@
+---
+- name: Backup running-config (choose transport)
+  hosts: routers:switches
+  gather_facts: false
+  serial: 5
+
+  vars:
+    transport: "telnet"         # đổi "ssh" nếu cần
+    backup_root: "{{ playbook_dir }}/backups"
+    backup_dir: "{{ backup_root }}/configs"
+    ansible_user: admin
+    ansible_password: cisc123
+    enable_pass: cisc123
+    ts: "{{ lookup('pipe', 'date +%Y%m%d_%H%M%S') }}"
+
+  # Chọn connection theo transport
+  vars_prompt: []
+  pre_tasks:
+    - name: Set connection vars from transport
+      ansible.builtin.set_fact:
+        ansible_connection: "{{ 'ansible.netcommon.telnet' if transport == 'telnet' else 'ansible.netcommon.network_cli' }}"
+        ansible_network_os: "cisco.ios.ios"
+        ansible_command_timeout: 120
+        ansible_telnet_timeout: "{{ 30 if transport == 'telnet' else omit }}"
+        ansible_become: true
+        ansible_become_method: enable
+        ansible_become_password: "{{ enable_pass }}"
+
+    - name: Ensure backup dir exists (local)
+      delegate_to: localhost
+      ansible.builtin.file:
+        path: "{{ backup_dir }}"
+        state: directory
+        mode: "0755"
+      run_once: true
+
+  tasks:
+    - name: Collect running-config (works for telnet or ssh)
+      ansible.netcommon.cli_command:
+        commands:
+          - terminal length 0
+          - show running-config
+      register: rc
+
+    - name: Save running-config to centralized backup_dir
+      delegate_to: localhost
+      ansible.builtin.copy:
+        content: |
+          ! Backup running-config - {{ inventory_hostname }}
+          ! Timestamp: {{ ts }}
+
+          {{ rc.stdout[1] }}
+        dest: "{{ backup_dir }}/{{ inventory_hostname }}_running_{{ ts }}.cfg"
+        mode: "0644"
+

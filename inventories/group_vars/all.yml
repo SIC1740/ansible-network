@@ -1,0 +1,4 @@
+---
+# Lưu file backup ngay trong repo: playbooks/backups/<HOST>/<ts>/
+backup_root: "{{ playbook_dir }}/backups"
+

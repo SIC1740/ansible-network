@@ -1,4 +1,7 @@
 ---
-- name: Log_backup_path
+# handlers file for backup_config
+
+- name: Log_backup_path  # Tên này giờ đã khớp với notify
   ansible.builtin.debug:
-    msg: "Backup saved to {{ backup_result.backup_path }}"
+    msg: "✅ Cấu hình của {{ inventory_hostname }} đã được sao lưu tại: {{ backup_result.backup_path }}"
+

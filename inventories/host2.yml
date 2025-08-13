@@ -1,0 +1,17 @@
+all:
+  vars:
+    rw_wan_ip: 192.168.45.141   # WAN của R-W
+  children:
+    routers:
+      hosts:
+        R1: { ansible_host: "{{ rw_wan_ip }}", ansible_port: 20111 }
+        R2: { ansible_host: "{{ rw_wan_ip }}", ansible_port: 20112 }
+        RW: { ansible_host: "{{ rw_wan_ip }}", ansible_port: 23 }
+    switches:
+      hosts:
+        SW1:  { ansible_host: "{{ rw_wan_ip }}", ansible_port: 20010 }
+        SW2:  { ansible_host: "{{ rw_wan_ip }}", ansible_port: 20030 }
+        SW3:  { ansible_host: "{{ rw_wan_ip }}", ansible_port: 20050 }
+        SW4:  { ansible_host: "{{ rw_wan_ip }}", ansible_port: 20060 }
+        SWTW: { ansible_host: "{{ rw_wan_ip }}", ansible_port: 20100 }
+

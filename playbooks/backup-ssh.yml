@@ -1,0 +1,38 @@
+---
+- name: Backup running-config qua SSH (NAT R-W) - no-become
+  hosts: routers:switches
+  gather_facts: false
+  collections:
+    - cisco.ios
+
+  vars:
+    # ĐƯỜNG LƯU BACKUP: đổi lại nếu bạn muốn
+    backup_root: "{{ playbook_dir }}/backups"
+    ts: "{{ lookup('pipe','date +%Y%m%d_%H%M%S') }}"
+    host_dir: "{{ backup_root }}/{{ inventory_hostname }}/{{ ts }}"
+
+  pre_tasks:
+    - name: Tạo thư mục backup local
+      ansible.builtin.file:
+        path: "{{ host_dir }}"
+        state: directory
+        mode: "0755"
+      delegate_to: localhost
+
+  tasks:
+    - name: Lấy running-config (không dùng become; dùng authorize)
+      cisco.ios.ios_command:
+        authorize: true
+        auth_pass: "{{ ansible_become_password | default('cisco123') }}"
+        commands:
+          - terminal length 0
+          - show running-config
+      register: out
+
+    - name: Lưu running-config thành .cfg
+      ansible.builtin.copy:
+        content: "{{ out.stdout[1] | default(out.stdout | last | default('')) }}"
+        dest: "{{ host_dir }}/{{ inventory_hostname }}_running_{{ ts }}.cfg"
+        mode: "0644"
+      delegate_to: localhost
+

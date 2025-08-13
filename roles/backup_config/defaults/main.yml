@@ -1,3 +1,10 @@
-# roles/backup_config/defaults/main.yml
-backup_config_backup_root: "./backups"               # Có thể override trong group_vars
-backup_config_backup_mode: running-config          # running‑config / startup‑config
+---
+# defaults file for backup_config
+
+# Sử dụng tên biến có tiền tố role để tránh xung đột.
+# Dùng {{ playbook_dir }} để đường dẫn luôn đúng.
+backup_config_backup_root: "{{ playbook_dir }}/backups"
+
+# Chế độ backup mặc định. Có thể override trong inventory hoặc group_vars.
+backup_config_backup_mode: "running-config"
+

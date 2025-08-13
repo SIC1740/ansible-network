@@ -1,0 +1,10 @@
+--- /tmp/ansible.5yhh45nh.cfg	2025-08-07 00:17:59.240001144 +0700
++++ /tmp/ansible.sh0d3kdx.cfg	2025-08-07 00:17:57.271818786 +0700
+@@ -54,6 +54,7 @@
+  permit 10.0.0.0 0.0.0.255
+ ipv6 ioam timestamp
+ control-plane
++banner motd ^CCUnauthorized access is prohibited^C
+ line con 0
+  logging synchronous
+ line aux 0

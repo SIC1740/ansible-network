@@ -1,0 +1,15 @@
+all:
+  children:
+    routers:
+      hosts:
+        R1:
+          ansible_host: 192.168.45.140
+          ansible_user: admin
+          ansible_password: 123456
+          ansible_network_os: cisco.ios.ios
+          ansible_connection: ansible.netcommon.network_cli
+          ansible_ssh_common_args: '-o KexAlgorithms=+diffie-hellman-group-exchange-sha1 -o HostKeyAlgorithms=+ssh-rsa -o Ciphers=+aes128-cbc -o StrictHostKeyChecking=no'
+          ansible_become: yes
+          ansible_become_method: enable
+          ansible_become_password: 123456  # Thêm dòng này
+

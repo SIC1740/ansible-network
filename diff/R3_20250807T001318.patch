@@ -1,0 +1,10 @@
+--- /tmp/ansible.pncw6042.cfg	2025-08-07 00:13:17.641723227 +0700
++++ /tmp/ansible.u6_f5ou4.cfg	2025-08-07 00:13:16.083180805 +0700
+@@ -54,6 +54,7 @@
+  permit 10.0.0.0 0.0.0.255
+ ipv6 ioam timestamp
+ control-plane
++banner motd ^CCUnauthorized access is prohibited^C
+ line con 0
+  logging synchronous
+ line aux 0

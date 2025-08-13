@@ -1,0 +1,16 @@
+---
+- name: Cấu hình interface e0/1 trên R1 qua SSH
+  hosts: R1
+  gather_facts: no
+  
+  tasks:
+    - name: Cấu hình IP cho interface e0/1
+      cisco.ios.ios_command:
+        commands:
+          - configure terminal
+          - interface Ethernet0/1
+          - ip address 192.168.2.2 255.255.255.0
+          - no shutdown
+          - end
+          - write memory
+
