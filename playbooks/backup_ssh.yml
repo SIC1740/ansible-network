@@ -7,7 +7,10 @@
 
   vars:
     backup_root: "{{ playbook_dir }}/backups"
-    enable_secret: "cisco123"   # enable của thiết bị
+    enable_secret: "cisco123"
+    github_username: "SIC1740"
+    github_repo: "ansible-network"
+    github_owner: "SIC1740"
 
   pre_tasks:
     - name: Freeze timestamp once
@@ -16,8 +19,6 @@
     - name: Build host_dir from ts
       set_fact:
         host_dir: "{{ backup_root }}/{{ inventory_hostname }}/{{ ts }}"
-
-    # Tạo đủ thư mục
     - name: Ensure base folder
       delegate_to: localhost
       ansible.builtin.file:
@@ -81,4 +82,25 @@
         content: "{{ run.stdout | default(run.stdout_lines | join('\n')) | default('') }}"
         dest: "{{ host_dir }}/{{ inventory_hostname }}_running_{{ ts }}.cfg"
         mode: "0644"
+
+  post_tasks:
+    - name: Add backup files to git
+      ansible.builtin.command:
+        cmd: git add playbooks/backups/
+      args:
+        chdir: /runner/project
+
+    - name: Commit backup changes
+      ansible.builtin.command:
+        cmd: git commit -m "Backup on {{ ansible_date_time.date }} {{ ansible_date_time.time }}"
+      args:
+        chdir: /runner/project
+      ignore_errors: yes
+
+    - name: Push backup to GitHub
+      ansible.builtin.command:
+        cmd: >
+          git push https://{{ github_username }}:{{ lookup('env','GITHUB_TOKEN') }}@github.com/{{ github_owner }}/{{ github_repo }}.git
+      args:
+        chdir: /runner/project
 
