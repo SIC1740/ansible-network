@@ -84,23 +84,111 @@
         mode: "0644"
 
   post_tasks:
-    - name: Add backup files to git
-      ansible.builtin.command:
-        cmd: git add playbooks/backups/
-      args:
-        chdir: /runner/project
+  # Msg commit dùng chung
+  - name: Set commit message
+    set_fact:
+      commit_msg: "backup {{ ts }} (AWX job {{ tower_job_id | default('manual') }})"
+    run_once: true
 
-    - name: Commit backup changes
-      ansible.builtin.command:
-        cmd: git commit -m "Backup on {{ ansible_date_time.date }} {{ ansible_date_time.time }}"
-      args:
-        chdir: /runner/project
-      ignore_errors: yes
+  # Kiểm tra repo của Project có .git không
+  - name: Check if Project has .git
+    ansible.builtin.stat:
+      path: /runner/project/.git
+    register: _git_here
+    run_once: true
 
-    - name: Push backup to GitHub
-      ansible.builtin.command:
-        cmd: >
-          git push https://{{ github_username }}:{{ lookup('env','GITHUB_TOKEN') }}@github.com/{{ github_owner }}/{{ github_repo }}.git
-      args:
-        chdir: /runner/project
+  # Nhánh A: Commit & push NGAY TRONG /runner/project (nếu có .git)
+  - name: GIT IN-PLACE | set user/email + remote
+    block:
+      - ansible.builtin.command:
+          cmd: git config user.name "{{ git_user_name }}"
+          chdir: /runner/project
+      - ansible.builtin.command:
+          cmd: git config user.email "{{ git_user_email }}"
+          chdir: /runner/project
+      - ansible.builtin.command:  # đảm bảo remote dùng HTTPS + token
+          cmd: git remote set-url origin https://{{ github_username }}:{{ github_token }}@github.com/{{ github_owner }}/{{ github_repo }}.git
+          chdir: /runner/project
+        no_log: true
+
+      - ansible.builtin.command:
+          cmd: git add playbooks/backups/
+          chdir: /runner/project
+
+      - ansible.builtin.command:
+          cmd: git commit -m "{{ commit_msg }}"
+          chdir: /runner/project
+        register: _commit_inplace
+        failed_when: _commit_inplace.rc not in [0,1]   # 1 = không có gì để commit
+
+      - ansible.builtin.command:
+          cmd: git pull --rebase origin "{{ git_branch }}"
+          chdir: /runner/project
+
+      - ansible.builtin.command:
+          cmd: git push origin "{{ git_branch }}"
+          chdir: /runner/project
+    when: _git_here.stat.exists
+    run_once: true
+    delegate_to: localhost
+    no_log: true   # ẩn URL chứa token trong log
+
+  # Nhánh B: Nếu KHÔNG có .git → clone repo tạm, copy backups vào, rồi commit & push
+  - name: GIT VIA TEMP CLONE | clone, copy, commit, push
+    block:
+      - ansible.builtin.file:
+          path: /tmp/repo_push
+          state: absent
+      - ansible.builtin.git:
+          repo: "https://{{ github_username }}:{{ github_token }}@github.com/{{ github_owner }}/{{ github_repo }}.git"
+          dest: /tmp/repo_push
+          version: "{{ git_branch }}"
+          force: true
+        no_log: true
+
+      - ansible.builtin.file:
+          path: /tmp/repo_push/playbooks/backups
+          state: directory
+          mode: "0755"
+
+      - name: Copy all generated backups into temp repo
+        ansible.builtin.shell: |
+          set -e
+          src="/runner/project/playbooks/backups"
+          dst="/tmp/repo_push/playbooks/backups"
+          mkdir -p "$dst"
+          if [ -d "$src" ]; then
+            cp -a "$src/." "$dst/"
+          fi
+        args:
+          executable: /bin/bash
+
+      - ansible.builtin.command:
+          cmd: git config user.name "{{ git_user_name }}"
+          chdir: /tmp/repo_push
+      - ansible.builtin.command:
+          cmd: git config user.email "{{ git_user_email }}"
+          chdir: /tmp/repo_push
+
+      - ansible.builtin.command:
+          cmd: git add playbooks/backups/
+          chdir: /tmp/repo_push
+
+      - ansible.builtin.command:
+          cmd: git commit -m "{{ commit_msg }}"
+          chdir: /tmp/repo_push
+        register: _commit_tmp
+        failed_when: _commit_tmp.rc not in [0,1]
+
+      - ansible.builtin.command:
+          cmd: git pull --rebase origin "{{ git_branch }}"
+          chdir: /tmp/repo_push
+
+      - ansible.builtin.command:
+          cmd: git push origin "{{ git_branch }}"
+          chdir: /tmp/repo_push
+    when: not _git_here.stat.exists
+    run_once: true
+    delegate_to: localhost
+    no_log: true
 
