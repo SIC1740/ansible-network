@@ -7,10 +7,7 @@
 
   vars:
     backup_root: "{{ playbook_dir }}/backups"
-    enable_secret: "cisco123"
-    github_username: "SIC1740"
-    github_repo: "ansible-network"
-    github_owner: "SIC1740"
+    enable_secret: "cisco123"   # enable của thiết bị
 
   pre_tasks:
     - name: Freeze timestamp once
@@ -19,12 +16,28 @@
     - name: Build host_dir from ts
       set_fact:
         host_dir: "{{ backup_root }}/{{ inventory_hostname }}/{{ ts }}"
+
+    # Tạo đủ thư mục
+    - name: Ensure base folder
+      delegate_to: localhost
+      ansible.builtin.file:
+        path: "{{ backup_root }}"
+        state: directory
+        mode: "0755"
+    - name: Ensure host folder
+      delegate_to: localhost
+      ansible.builtin.file:
+        path: "{{ backup_root }}/{{ inventory_hostname }}"
+        state: directory
+        mode: "0755"
     - name: Ensure timestamp folder
       delegate_to: localhost
       ansible.builtin.file:
         path: "{{ host_dir }}"
         state: directory
         mode: "0755"
+
+    # Kiểm tra cổng SSH tới đúng đích (qua NAT)
     - name: Wait for SSH port reachable on target
       delegate_to: localhost
       ansible.builtin.wait_for:
@@ -33,38 +46,39 @@
         timeout: 15
 
   tasks:
+    # Lấy privilege hiện tại; nếu SW đã vào privilege 15 thì không cần enable
+    - name: Check privilege level
+      ansible.netcommon.cli_command:
+        command: "show privilege"
+      register: priv
+      failed_when: false
+
+    - name: Enable only if not level 15
+      ansible.netcommon.cli_command:
+        command: "enable"
+        prompt: "Password:"
+        answer: "{{ enable_secret }}"
+      when: >
+        (priv is not failed) and
+        (
+          (priv.stdout is defined and ('15' not in priv.stdout)) or
+          (priv.stdout is not defined and (priv.stdout_lines | default([]) | join(' ') is search('15') | ternary(false, true)))
+        )
+      failed_when: false
+
     - name: terminal length 0
       ansible.netcommon.cli_command:
         command: "terminal length 0"
+
     - name: show running-config
       ansible.netcommon.cli_command:
         command: "show running-config"
       register: run
+
     - name: Save running-config to file
       delegate_to: localhost
       ansible.builtin.copy:
-        content: "{{ run.stdout | default(run.stdout_lines | join('\n')) }}"
+        content: "{{ run.stdout | default(run.stdout_lines | join('\n')) | default('') }}"
         dest: "{{ host_dir }}/{{ inventory_hostname }}_running_{{ ts }}.cfg"
         mode: "0644"
-
-  post_tasks:
-    - name: Add backup files to git
-      ansible.builtin.command:
-        cmd: git add playbooks/backups/
-      args:
-        chdir: /runner/project
-
-    - name: Commit backup changes
-      ansible.builtin.command:
-        cmd: git commit -m "Backup on {{ ansible_date_time.date }} {{ ansible_date_time.time }}"
-      args:
-        chdir: /runner/project
-      ignore_errors: yes
-
-    - name: Push backup to GitHub
-      ansible.builtin.command:
-        cmd: >
-          git push https://{{ github_username }}:{{ lookup('env','GITHUB_TOKEN') }}@github.com/{{ github_owner }}/{{ github_repo }}.git
-      args:
-        chdir: /runner/project
 
