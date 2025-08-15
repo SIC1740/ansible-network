@@ -1616,3 +1616,152 @@ R1                         : ok=10   changed=2    unreachable=0    failed=0    s
 R2                         : ok=10   changed=2    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
 RW                         : ok=10   changed=2    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
 
+[main 54fe046e3] Auto backup at 2025-08-15 15:50:01
+ 4 files changed, 616 insertions(+)
+ create mode 100644 playbooks/backups/R1/20250815_155002/R1_running_20250815_155002.cfg
+ create mode 100644 playbooks/backups/R2/20250815_155002/R2_running_20250815_155002.cfg
+ create mode 100644 playbooks/backups/RW/20250815_155002/RW_running_20250815_155002.cfg
+To github.com:SIC1740/ansible-network.git
+   a239c830b..54fe046e3  main -> main
+[2025-08-15 15:50:01] Pushed changes to GitHub.
+[2025-08-15 15:50:01] ==== RUN END ====
+
+[2025-08-15 15:51:01] ==== RUN START ====
+whoami=ubuntu
+pwd=/home/ubuntu/ansible-network
+which ansible-playbook: /home/ubuntu/ansible-network/venv/bin/ansible-playbook
+branch=main
+remote=origin	git@github.com:SIC1740/ansible-network.git (fetch)
+[WARNING]: Could not match supplied host pattern, ignoring: switches
+ansible-playbook [core 2.18.7]
+  config file = /home/ubuntu/ansible-network/ansible.cfg
+  configured module search path = ['/home/ubuntu/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /home/ubuntu/ansible-network/venv/lib/python3.12/site-packages/ansible
+  ansible collection location = /home/ubuntu/.ansible/collections:/usr/share/ansible/collections
+  executable location = /home/ubuntu/ansible-network/venv/bin/ansible-playbook
+  python version = 3.12.3 (main, Jun 18 2025, 17:59:45) [GCC 13.3.0] (/home/ubuntu/ansible-network/venv/bin/python)
+  jinja version = 3.1.6
+  libyaml = True
+Using /home/ubuntu/ansible-network/ansible.cfg as config file
+Skipping callback 'default', as we already have a stdout callback.
+Skipping callback 'minimal', as we already have a stdout callback.
+Skipping callback 'oneline', as we already have a stdout callback.
+
+PLAYBOOK: backup.yml ***********************************************************
+1 plays in /home/ubuntu/ansible-network/playbooks/backup.yml
+
+PLAY [Backup running-config via SSH (NAT R-W) - no become/authorize] ***********
+redirecting (type: become) ansible.builtin.enable to ansible.netcommon.enable
+redirecting (type: become) ansible.builtin.enable to ansible.netcommon.enable
+redirecting (type: become) ansible.builtin.enable to ansible.netcommon.enable
+
+TASK [Freeze timestamp once] ***************************************************
+task path: /home/ubuntu/ansible-network/playbooks/backup.yml:13
+ok: [RW] => {"ansible_facts": {"ts": "20250815_155102"}, "changed": false}
+ok: [R1] => {"ansible_facts": {"ts": "20250815_155102"}, "changed": false}
+ok: [R2] => {"ansible_facts": {"ts": "20250815_155102"}, "changed": false}
+redirecting (type: become) ansible.builtin.enable to ansible.netcommon.enable
+
+TASK [Build host_dir from ts] **************************************************
+task path: /home/ubuntu/ansible-network/playbooks/backup.yml:16
+ok: [RW] => {"ansible_facts": {"host_dir": "/home/ubuntu/ansible-network/playbooks/backups/RW/20250815_155102"}, "changed": false}
+redirecting (type: become) ansible.builtin.enable to ansible.netcommon.enable
+ok: [R1] => {"ansible_facts": {"host_dir": "/home/ubuntu/ansible-network/playbooks/backups/R1/20250815_155102"}, "changed": false}
+redirecting (type: become) ansible.builtin.enable to ansible.netcommon.enable
+ok: [R2] => {"ansible_facts": {"host_dir": "/home/ubuntu/ansible-network/playbooks/backups/R2/20250815_155102"}, "changed": false}
+
+TASK [Ensure base folder] ******************************************************
+task path: /home/ubuntu/ansible-network/playbooks/backup.yml:21
+ok: [R1 -> localhost] => {"changed": false, "gid": 1000, "group": "ubuntu", "mode": "0755", "owner": "ubuntu", "path": "/home/ubuntu/ansible-network/playbooks/backups", "size": 4096, "state": "directory", "uid": 1000}
+ok: [R2 -> localhost] => {"changed": false, "gid": 1000, "group": "ubuntu", "mode": "0755", "owner": "ubuntu", "path": "/home/ubuntu/ansible-network/playbooks/backups", "size": 4096, "state": "directory", "uid": 1000}
+ok: [RW -> localhost] => {"changed": false, "gid": 1000, "group": "ubuntu", "mode": "0755", "owner": "ubuntu", "path": "/home/ubuntu/ansible-network/playbooks/backups", "size": 4096, "state": "directory", "uid": 1000}
+
+TASK [Ensure host folder] ******************************************************
+task path: /home/ubuntu/ansible-network/playbooks/backup.yml:27
+ok: [R1 -> localhost] => {"changed": false, "gid": 1000, "group": "ubuntu", "mode": "0755", "owner": "ubuntu", "path": "/home/ubuntu/ansible-network/playbooks/backups/R1", "size": 4096, "state": "directory", "uid": 1000}
+ok: [R2 -> localhost] => {"changed": false, "gid": 1000, "group": "ubuntu", "mode": "0755", "owner": "ubuntu", "path": "/home/ubuntu/ansible-network/playbooks/backups/R2", "size": 4096, "state": "directory", "uid": 1000}
+ok: [RW -> localhost] => {"changed": false, "gid": 1000, "group": "ubuntu", "mode": "0755", "owner": "ubuntu", "path": "/home/ubuntu/ansible-network/playbooks/backups/RW", "size": 4096, "state": "directory", "uid": 1000}
+
+TASK [Ensure timestamp folder] *************************************************
+task path: /home/ubuntu/ansible-network/playbooks/backup.yml:33
+changed: [R1 -> localhost] => {"changed": true, "gid": 1000, "group": "ubuntu", "mode": "0755", "owner": "ubuntu", "path": "/home/ubuntu/ansible-network/playbooks/backups/R1/20250815_155102", "size": 4096, "state": "directory", "uid": 1000}
+changed: [R2 -> localhost] => {"changed": true, "gid": 1000, "group": "ubuntu", "mode": "0755", "owner": "ubuntu", "path": "/home/ubuntu/ansible-network/playbooks/backups/R2/20250815_155102", "size": 4096, "state": "directory", "uid": 1000}
+changed: [RW -> localhost] => {"changed": true, "gid": 1000, "group": "ubuntu", "mode": "0755", "owner": "ubuntu", "path": "/home/ubuntu/ansible-network/playbooks/backups/RW/20250815_155102", "size": 4096, "state": "directory", "uid": 1000}
+
+TASK [Wait for SSH port reachable on target] ***********************************
+task path: /home/ubuntu/ansible-network/playbooks/backup.yml:41
+ok: [RW -> localhost] => {"changed": false, "elapsed": 0, "match_groupdict": {}, "match_groups": [], "path": null, "port": 22, "search_regex": null, "state": "started"}
+ok: [R1 -> localhost] => {"changed": false, "elapsed": 0, "match_groupdict": {}, "match_groups": [], "path": null, "port": 22111, "search_regex": null, "state": "started"}
+ok: [R2 -> localhost] => {"changed": false, "elapsed": 0, "match_groupdict": {}, "match_groups": [], "path": null, "port": 22112, "search_regex": null, "state": "started"}
+redirecting (type: become) ansible.builtin.enable to ansible.netcommon.enable
+redirecting (type: become) ansible.builtin.enable to ansible.netcommon.enable
+redirecting (type: become) ansible.builtin.enable to ansible.netcommon.enable
+
+TASK [Check privilege level] ***************************************************
+task path: /home/ubuntu/ansible-network/playbooks/backup.yml:50
+ok: [RW] => {"changed": false, "failed_when_result": false, "stdout": "Current privilege level is 15", "stdout_lines": ["Current privilege level is 15"]}
+
+TASK [Enable only if not level 15] *********************************************
+task path: /home/ubuntu/ansible-network/playbooks/backup.yml:56
+skipping: [RW] => {"changed": false, "false_condition": "(priv is not failed) and (\n  (priv.stdout is defined and ('15' not in priv.stdout)) or\n  (priv.stdout is not defined and (priv.stdout_lines | default([]) | join(' ') is search('15') | ternary(false, true)))\n)\n", "skip_reason": "Conditional result was False"}
+redirecting (type: become) ansible.builtin.enable to ansible.netcommon.enable
+
+TASK [Check privilege level] ***************************************************
+task path: /home/ubuntu/ansible-network/playbooks/backup.yml:50
+ok: [R2] => {"changed": false, "failed_when_result": false, "stdout": "Current privilege level is 15", "stdout_lines": ["Current privilege level is 15"]}
+
+TASK [Enable only if not level 15] *********************************************
+task path: /home/ubuntu/ansible-network/playbooks/backup.yml:56
+skipping: [R2] => {"changed": false, "false_condition": "(priv is not failed) and (\n  (priv.stdout is defined and ('15' not in priv.stdout)) or\n  (priv.stdout is not defined and (priv.stdout_lines | default([]) | join(' ') is search('15') | ternary(false, true)))\n)\n", "skip_reason": "Conditional result was False"}
+redirecting (type: become) ansible.builtin.enable to ansible.netcommon.enable
+
+TASK [terminal length 0] *******************************************************
+task path: /home/ubuntu/ansible-network/playbooks/backup.yml:69
+ok: [RW] => {"changed": false, "stdout": "", "stdout_lines": []}
+
+TASK [Check privilege level] ***************************************************
+task path: /home/ubuntu/ansible-network/playbooks/backup.yml:50
+ok: [R1] => {"changed": false, "failed_when_result": false, "stdout": "Current privilege level is 15", "stdout_lines": ["Current privilege level is 15"]}
+
+TASK [Enable only if not level 15] *********************************************
+task path: /home/ubuntu/ansible-network/playbooks/backup.yml:56
+skipping: [R1] => {"changed": false, "false_condition": "(priv is not failed) and (\n  (priv.stdout is defined and ('15' not in priv.stdout)) or\n  (priv.stdout is not defined and (priv.stdout_lines | default([]) | join(' ') is search('15') | ternary(false, true)))\n)\n", "skip_reason": "Conditional result was False"}
+redirecting (type: become) ansible.builtin.enable to ansible.netcommon.enable
+redirecting (type: become) ansible.builtin.enable to ansible.netcommon.enable
+
+TASK [terminal length 0] *******************************************************
+task path: /home/ubuntu/ansible-network/playbooks/backup.yml:69
+ok: [R2] => {"changed": false, "stdout": "", "stdout_lines": []}
+redirecting (type: become) ansible.builtin.enable to ansible.netcommon.enable
+
+TASK [show running-config] *****************************************************
+task path: /home/ubuntu/ansible-network/playbooks/backup.yml:73
+ok: [RW] => {"changed": false, "stdout": "Building configuration...\n\n  \nCurrent configuration : 2464 bytes\n!\n! No configuration change since last restart\n!\nversion 15.7\nservice timestamps debug datetime msec\nservice timestamps log datetime msec\nno service password-encryption\n!\nhostname R-W\n!\nboot-start-marker\nboot-end-marker\n!\n!\nenable secret 5 $1$Li3c$lB.Rx1qrLYhfpfi/HHYCT.\n!\nno aaa new-model\n!\n!\n!\nmmi polling-interval 60\nno mmi auto-configure\nno mmi pvc\nmmi snmp-timeout 180\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n\n\n!\nip dhcp excluded-address 10.0.0.1 10.0.0.50\n!\nip dhcp pool LAN-POOL\n network 10.0.0.0 255.255.255.0\n default-router 10.0.0.1 \n dns-server 8.8.8.8 1.1.1.1 \n!\n!\n!\nip domain name lab.local\nip cef\nno ipv6 cef\n!\nmultilink bundle-name authenticated\n!\n!\n!\n!\n!\n!\n!\n!\n!\nusername admin privilege 15 secret 5 $1$VRHD$TsAkaykJePHNMX7w15QLQ.\n!\nredundancy\n!\n!\n! \n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\ninterface Ethernet0/0\n description BACKBONE-to-SW-TW\n ip address 10.0.0.1 255.255.255.0\n ip nat inside\n ip virtual-reassembly in\n duplex auto\n!\ninterface Ethernet0/1\n no ip address\n shutdown\n duplex auto\n!\ninterface Ethernet0/2\n description Uplink-to-Net\n ip address dhcp\n ip nat outside\n ip virtual-reassembly in\n ip virtual-reassembly out\n duplex auto\n!\ninterface Ethernet0/3\n no ip address\n shutdown\n duplex auto\n!\nip forward-protocol nd\n!\n!\nno ip http server\nno ip http secure-server\nip nat inside source list ACL-NAT-LAN interface Ethernet0/2 overload\nip nat inside source static tcp 10.0.0.11 22 interface Ethernet0/2 22111\nip nat inside source static tcp 10.0.0.12 22 interface Ethernet0/2 22112\nip nat inside source static tcp 10.0.0.10 22 interface Ethernet0/2 22100\nip nat inside source static tcp 192.168.10.2 22 interface Ethernet0/2 22010\nip nat inside source static tcp 192.168.30.2 22 interface Ethernet0/2 22030\nip nat inside source static tcp 192.168.50.2 22 interface Ethernet0/2 22050\nip nat inside source static tcp 192.168.60.2 22 interface Ethernet0/2 22060\nip route 192.168.10.0 255.255.255.0 10.0.0.11\nip route 192.168.30.0 255.255.255.0 10.0.0.12\nip route 192.168.50.0 255.255.255.0 10.0.0.11\nip route 192.168.60.0 255.255.255.0 10.0.0.12\nip route 0.0.0.0 0.0.0.0 dhcp\nip ssh version 2\n!\nip access-list standard ACL-NAT-LAN\n permit 10.0.0.0 0.0.0.255\n permit 172.16.0.0 0.15.255.255\n permit 192.168.0.0 0.0.255.255\n!\nipv6 ioam timestamp\n!\n!\n!\ncontrol-plane\n!\n!\n!\n!\n!\n!\n!\n!\nline con 0\n logging synchronous\nline aux 0\nline vty 0 4\n exec-timeout 15 0\n password 123456\n login local\n transport input ssh\n!\nntp server 34.202.215.187\nntp server pool.ntp.org\n!\nend", "stdout_lines": ["Building configuration...", "", "  ", "Current configuration : 2464 bytes", "!", "! No configuration change since last restart", "!", "version 15.7", "service timestamps debug datetime msec", "service timestamps log datetime msec", "no service password-encryption", "!", "hostname R-W", "!", "boot-start-marker", "boot-end-marker", "!", "!", "enable secret 5 $1$Li3c$lB.Rx1qrLYhfpfi/HHYCT.", "!", "no aaa new-model", "!", "!", "!", "mmi polling-interval 60", "no mmi auto-configure", "no mmi pvc", "mmi snmp-timeout 180", "!", "!", "!", "!", "!", "!", "!", "!", "!", "!", "!", "!", "!", "!", "!", "", "", "!", "ip dhcp excluded-address 10.0.0.1 10.0.0.50", "!", "ip dhcp pool LAN-POOL", " network 10.0.0.0 255.255.255.0", " default-router 10.0.0.1 ", " dns-server 8.8.8.8 1.1.1.1 ", "!", "!", "!", "ip domain name lab.local", "ip cef", "no ipv6 cef", "!", "multilink bundle-name authenticated", "!", "!", "!", "!", "!", "!", "!", "!", "!", "username admin privilege 15 secret 5 $1$VRHD$TsAkaykJePHNMX7w15QLQ.", "!", "redundancy", "!", "!", "! ", "!", "!", "!", "!", "!", "!", "!", "!", "!", "!", "!", "!", "interface Ethernet0/0", " description BACKBONE-to-SW-TW", " ip address 10.0.0.1 255.255.255.0", " ip nat inside", " ip virtual-reassembly in", " duplex auto", "!", "interface Ethernet0/1", " no ip address", " shutdown", " duplex auto", "!", "interface Ethernet0/2", " description Uplink-to-Net", " ip address dhcp", " ip nat outside", " ip virtual-reassembly in", " ip virtual-reassembly out", " duplex auto", "!", "interface Ethernet0/3", " no ip address", " shutdown", " duplex auto", "!", "ip forward-protocol nd", "!", "!", "no ip http server", "no ip http secure-server", "ip nat inside source list ACL-NAT-LAN interface Ethernet0/2 overload", "ip nat inside source static tcp 10.0.0.11 22 interface Ethernet0/2 22111", "ip nat inside source static tcp 10.0.0.12 22 interface Ethernet0/2 22112", "ip nat inside source static tcp 10.0.0.10 22 interface Ethernet0/2 22100", "ip nat inside source static tcp 192.168.10.2 22 interface Ethernet0/2 22010", "ip nat inside source static tcp 192.168.30.2 22 interface Ethernet0/2 22030", "ip nat inside source static tcp 192.168.50.2 22 interface Ethernet0/2 22050", "ip nat inside source static tcp 192.168.60.2 22 interface Ethernet0/2 22060", "ip route 192.168.10.0 255.255.255.0 10.0.0.11", "ip route 192.168.30.0 255.255.255.0 10.0.0.12", "ip route 192.168.50.0 255.255.255.0 10.0.0.11", "ip route 192.168.60.0 255.255.255.0 10.0.0.12", "ip route 0.0.0.0 0.0.0.0 dhcp", "ip ssh version 2", "!", "ip access-list standard ACL-NAT-LAN", " permit 10.0.0.0 0.0.0.255", " permit 172.16.0.0 0.15.255.255", " permit 192.168.0.0 0.0.255.255", "!", "ipv6 ioam timestamp", "!", "!", "!", "control-plane", "!", "!", "!", "!", "!", "!", "!", "!", "line con 0", " logging synchronous", "line aux 0", "line vty 0 4", " exec-timeout 15 0", " password 123456", " login local", " transport input ssh", "!", "ntp server 34.202.215.187", "ntp server pool.ntp.org", "!", "end"]}
+
+TASK [terminal length 0] *******************************************************
+task path: /home/ubuntu/ansible-network/playbooks/backup.yml:69
+ok: [R1] => {"changed": false, "stdout": "", "stdout_lines": []}
+redirecting (type: become) ansible.builtin.enable to ansible.netcommon.enable
+
+TASK [show running-config] *****************************************************
+task path: /home/ubuntu/ansible-network/playbooks/backup.yml:73
+ok: [R2] => {"changed": false, "stdout": "Building configuration...\n\nCurrent configuration : 1703 bytes\n!\nversion 15.7\nservice timestamps debug datetime msec\nservice timestamps log datetime msec\nservice password-encryption\n!\nhostname R2\n!\nboot-start-marker\nboot-end-marker\n!\n!\nenable secret 5 $1$Wi85$hvPr8Ll0lOVOSEMQgOPjs0\n!\naaa new-model\n!\n!\naaa authentication login default local\n!\n!\n!\n!\n!\naaa session-id common\n!\n!\n!\nmmi polling-interval 60\nno mmi auto-configure\nno mmi pvc\nmmi snmp-timeout 180\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n\n\n!\n!\n!\n!\nip domain name lab.local\nip cef\nno ipv6 cef\n!\nmultilink bundle-name authenticated\n!\n!\n!\n!\n!\n!\n!\n!\n!\nusername admin privilege 15 secret 5 $1$rjFK$beQkg6LmIpwUmSPvDJY1G.\n!\nredundancy\n!\n!\n! \n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\ninterface Ethernet0/0\n no ip address\n duplex auto\n!\ninterface Ethernet0/0.50\n encapsulation dot1Q 50\n ip address 192.168.50.1 255.255.255.0\n!\ninterface Ethernet0/1\n ip address 10.0.0.12 255.255.255.0\n duplex auto\n!\ninterface Ethernet0/2\n ip address 172.16.12.2 255.255.255.252\n duplex auto\n!\ninterface Ethernet0/3\n no ip address\n duplex auto\n!\ninterface Ethernet0/3.60\n encapsulation dot1Q 60\n ip address 192.168.60.1 255.255.255.0\n!\nrouter ospf 1\n router-id 2.2.2.2\n passive-interface default\n no passive-interface Ethernet0/2\n network 172.16.12.0 0.0.0.3 area 0\n network 172.16.24.0 0.0.0.3 area 0\n network 192.168.50.0 0.0.0.255 area 0\n network 192.168.60.0 0.0.0.255 area 0\n!\nip forward-protocol nd\n!\n!\nno ip http server\nno ip http secure-server\nip route 0.0.0.0 0.0.0.0 10.0.0.1\nip ssh time-out 60\nip ssh version 2\n!\nipv6 ioam timestamp\n!\n!\n!\n!\n!\ncontrol-plane\n!\n!\n!\n!\n!\n!\n!\n!\nline con 0\n exec-timeout 15 0\n logging synchronous\nline aux 0\nline vty 0 4\n exec-timeout 15 0\n transport input ssh\n!\nntp server 34.202.215.187\nntp server pool.ntp.org\n!\nend", "stdout_lines": ["Building configuration...", "", "Current configuration : 1703 bytes", "!", "version 15.7", "service timestamps debug datetime msec", "service timestamps log datetime msec", "service password-encryption", "!", "hostname R2", "!", "boot-start-marker", "boot-end-marker", "!", "!", "enable secret 5 $1$Wi85$hvPr8Ll0lOVOSEMQgOPjs0", "!", "aaa new-model", "!", "!", "aaa authentication login default local", "!", "!", "!", "!", "!", "aaa session-id common", "!", "!", "!", "mmi polling-interval 60", "no mmi auto-configure", "no mmi pvc", "mmi snmp-timeout 180", "!", "!", "!", "!", "!", "!", "!", "!", "!", "!", "!", "!", "!", "!", "!", "", "", "!", "!", "!", "!", "ip domain name lab.local", "ip cef", "no ipv6 cef", "!", "multilink bundle-name authenticated", "!", "!", "!", "!", "!", "!", "!", "!", "!", "username admin privilege 15 secret 5 $1$rjFK$beQkg6LmIpwUmSPvDJY1G.", "!", "redundancy", "!", "!", "! ", "!", "!", "!", "!", "!", "!", "!", "!", "!", "!", "!", "!", "interface Ethernet0/0", " no ip address", " duplex auto", "!", "interface Ethernet0/0.50", " encapsulation dot1Q 50", " ip address 192.168.50.1 255.255.255.0", "!", "interface Ethernet0/1", " ip address 10.0.0.12 255.255.255.0", " duplex auto", "!", "interface Ethernet0/2", " ip address 172.16.12.2 255.255.255.252", " duplex auto", "!", "interface Ethernet0/3", " no ip address", " duplex auto", "!", "interface Ethernet0/3.60", " encapsulation dot1Q 60", " ip address 192.168.60.1 255.255.255.0", "!", "router ospf 1", " router-id 2.2.2.2", " passive-interface default", " no passive-interface Ethernet0/2", " network 172.16.12.0 0.0.0.3 area 0", " network 172.16.24.0 0.0.0.3 area 0", " network 192.168.50.0 0.0.0.255 area 0", " network 192.168.60.0 0.0.0.255 area 0", "!", "ip forward-protocol nd", "!", "!", "no ip http server", "no ip http secure-server", "ip route 0.0.0.0 0.0.0.0 10.0.0.1", "ip ssh time-out 60", "ip ssh version 2", "!", "ipv6 ioam timestamp", "!", "!", "!", "!", "!", "control-plane", "!", "!", "!", "!", "!", "!", "!", "!", "line con 0", " exec-timeout 15 0", " logging synchronous", "line aux 0", "line vty 0 4", " exec-timeout 15 0", " transport input ssh", "!", "ntp server 34.202.215.187", "ntp server pool.ntp.org", "!", "end"]}
+
+TASK [Save running-config to file] *********************************************
+task path: /home/ubuntu/ansible-network/playbooks/backup.yml:78
+changed: [RW -> localhost] => {"changed": true, "checksum": "10bdd2e4884b8c1efc0a3fc45ece723cd8e87813", "dest": "/home/ubuntu/ansible-network/playbooks/backups/RW/20250815_155102/RW_running_20250815_155102.cfg", "gid": 1000, "group": "ubuntu", "md5sum": "ca905fd9f57105ed5748f136c2146323", "mode": "0644", "owner": "ubuntu", "size": 2527, "src": "/home/ubuntu/.ansible/tmp/ansible-tmp-1755247867.1242166-276086-132097455994732/.source.cfg", "state": "file", "uid": 1000}
+
+TASK [show running-config] *****************************************************
+task path: /home/ubuntu/ansible-network/playbooks/backup.yml:73
+ok: [R1] => {"changed": false, "stdout": "Building configuration...\n\n  \nCurrent configuration : 2045 bytes\n!\nversion 15.7\nservice timestamps debug datetime msec\nservice timestamps log datetime msec\nservice password-encryption\n!\nhostname R1\n!\nboot-start-marker\nboot-end-marker\n!\n!\nenable secret 5 $1$R2Wf$LPOVsHaPqQSTc8sJXjeq41\n!\naaa new-model\n!\n!\naaa authentication login default local\n!\n!\n!\n!\n!\naaa session-id common\n!\n!\n!\nmmi polling-interval 60\nno mmi auto-configure\nno mmi pvc\nmmi snmp-timeout 180\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n\n\n!\n!\n!\n!\nip domain name lab.local\nip cef\nno ipv6 cef\n!\nmultilink bundle-name authenticated\n!\n!\n!\n!\n!\n!\n!\n!\n!\nusername admin privilege 15 secret 5 $1$8mbg$Gp9x0.XkNEIEmzDdm7Q7b1\nusername amin privilege 15 password 7 13061E01085D5679\n!\nredundancy\n!\n!\n! \n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\ninterface Ethernet0/0\n ip address 172.16.12.1 255.255.255.252\n duplex auto\n!\ninterface Ethernet0/1\n ip address 10.0.0.11 255.255.255.0\n duplex auto\n!\ninterface Ethernet0/2\n no ip address\n duplex auto\n!\ninterface Ethernet0/2.10\n encapsulation dot1Q 10\n ip address 192.168.10.1 255.255.255.0\n!\ninterface Ethernet0/2.20\n encapsulation dot1Q 20\n ip address 192.168.20.1 255.255.255.0\n!\ninterface Ethernet0/3\n no ip address\n duplex auto\n!\ninterface Ethernet0/3.30\n encapsulation dot1Q 30\n ip address 192.168.30.1 255.255.255.0\n!\ninterface Ethernet0/3.40\n encapsulation dot1Q 40\n ip address 192.168.40.1 255.255.255.0\n!\nrouter ospf 1\n router-id 1.1.1.1\n passive-interface default\n no passive-interface Ethernet0/0\n network 172.16.12.0 0.0.0.3 area 0\n network 172.16.14.0 0.0.0.3 area 0\n network 192.168.10.0 0.0.0.255 area 0\n network 192.168.20.0 0.0.0.255 area 0\n network 192.168.30.0 0.0.0.255 area 0\n network 192.168.40.0 0.0.0.255 area 0\n!\nip forward-protocol nd\n!\n!\nno ip http server\nno ip http secure-server\nip route 0.0.0.0 0.0.0.0 10.0.0.1\nip ssh time-out 60\nip ssh version 2\n!\nipv6 ioam timestamp\n!\n!\n!\n!\n!\ncontrol-plane\n!\n!\n!\n!\n!\n!\n!\n!\nline con 0\n exec-timeout 15 0\n logging synchronous\nline aux 0\nline vty 0 4\n exec-timeout 15 0\n password 7 14141B180F557878\n transport input ssh\n!\nntp server 34.202.215.187\nntp server pool.ntp.org\n!\nend", "stdout_lines": ["Building configuration...", "", "  ", "Current configuration : 2045 bytes", "!", "version 15.7", "service timestamps debug datetime msec", "service timestamps log datetime msec", "service password-encryption", "!", "hostname R1", "!", "boot-start-marker", "boot-end-marker", "!", "!", "enable secret 5 $1$R2Wf$LPOVsHaPqQSTc8sJXjeq41", "!", "aaa new-model", "!", "!", "aaa authentication login default local", "!", "!", "!", "!", "!", "aaa session-id common", "!", "!", "!", "mmi polling-interval 60", "no mmi auto-configure", "no mmi pvc", "mmi snmp-timeout 180", "!", "!", "!", "!", "!", "!", "!", "!", "!", "!", "!", "!", "!", "!", "!", "", "", "!", "!", "!", "!", "ip domain name lab.local", "ip cef", "no ipv6 cef", "!", "multilink bundle-name authenticated", "!", "!", "!", "!", "!", "!", "!", "!", "!", "username admin privilege 15 secret 5 $1$8mbg$Gp9x0.XkNEIEmzDdm7Q7b1", "username amin privilege 15 password 7 13061E01085D5679", "!", "redundancy", "!", "!", "! ", "!", "!", "!", "!", "!", "!", "!", "!", "!", "!", "!", "!", "interface Ethernet0/0", " ip address 172.16.12.1 255.255.255.252", " duplex auto", "!", "interface Ethernet0/1", " ip address 10.0.0.11 255.255.255.0", " duplex auto", "!", "interface Ethernet0/2", " no ip address", " duplex auto", "!", "interface Ethernet0/2.10", " encapsulation dot1Q 10", " ip address 192.168.10.1 255.255.255.0", "!", "interface Ethernet0/2.20", " encapsulation dot1Q 20", " ip address 192.168.20.1 255.255.255.0", "!", "interface Ethernet0/3", " no ip address", " duplex auto", "!", "interface Ethernet0/3.30", " encapsulation dot1Q 30", " ip address 192.168.30.1 255.255.255.0", "!", "interface Ethernet0/3.40", " encapsulation dot1Q 40", " ip address 192.168.40.1 255.255.255.0", "!", "router ospf 1", " router-id 1.1.1.1", " passive-interface default", " no passive-interface Ethernet0/0", " network 172.16.12.0 0.0.0.3 area 0", " network 172.16.14.0 0.0.0.3 area 0", " network 192.168.10.0 0.0.0.255 area 0", " network 192.168.20.0 0.0.0.255 area 0", " network 192.168.30.0 0.0.0.255 area 0", " network 192.168.40.0 0.0.0.255 area 0", "!", "ip forward-protocol nd", "!", "!", "no ip http server", "no ip http secure-server", "ip route 0.0.0.0 0.0.0.0 10.0.0.1", "ip ssh time-out 60", "ip ssh version 2", "!", "ipv6 ioam timestamp", "!", "!", "!", "!", "!", "control-plane", "!", "!", "!", "!", "!", "!", "!", "!", "line con 0", " exec-timeout 15 0", " logging synchronous", "line aux 0", "line vty 0 4", " exec-timeout 15 0", " password 7 14141B180F557878", " transport input ssh", "!", "ntp server 34.202.215.187", "ntp server pool.ntp.org", "!", "end"]}
+
+TASK [Save running-config to file] *********************************************
+task path: /home/ubuntu/ansible-network/playbooks/backup.yml:78
+changed: [R2 -> localhost] => {"changed": true, "checksum": "ed41df3e5205ac8cdb563eee1e6c3aa46277c60d", "dest": "/home/ubuntu/ansible-network/playbooks/backups/R2/20250815_155102/R2_running_20250815_155102.cfg", "gid": 1000, "group": "ubuntu", "md5sum": "f4a49f25cbbed80e66425062d59f10fe", "mode": "0644", "owner": "ubuntu", "size": 1763, "src": "/home/ubuntu/.ansible/tmp/ansible-tmp-1755247867.6282792-276123-192564275388433/.source.cfg", "state": "file", "uid": 1000}
+changed: [R1 -> localhost] => {"changed": true, "checksum": "de0c4acec9f33c5f9ad01eb30ea0717fabddc15e", "dest": "/home/ubuntu/ansible-network/playbooks/backups/R1/20250815_155102/R1_running_20250815_155102.cfg", "gid": 1000, "group": "ubuntu", "md5sum": "36abdd0c5493c7c1187860cd6b95d2e0", "mode": "0644", "owner": "ubuntu", "size": 2108, "src": "/home/ubuntu/.ansible/tmp/ansible-tmp-1755247867.9493468-276167-68333537980013/.source.cfg", "state": "file", "uid": 1000}
+
+PLAY RECAP *********************************************************************
+R1                         : ok=10   changed=2    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
+R2                         : ok=10   changed=2    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
+RW                         : ok=10   changed=2    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
+
