@@ -437,3 +437,41 @@ skipping: no hosts matched
 
 PLAY RECAP *********************************************************************
 
+[main c74e7a32c] Auto backup at 2025-08-15 15:41:01
+ 1 file changed, 38 insertions(+)
+To github.com:SIC1740/ansible-network.git
+   9520bbe64..c74e7a32c  main -> main
+[2025-08-15 15:41:01] Pushed changes to GitHub.
+[2025-08-15 15:41:01] ==== RUN END ====
+
+[2025-08-15 15:42:01] ==== RUN START ====
+which ansible-playbook: /home/ubuntu/ansible-network/venv/bin/ansible-playbook
+[WARNING]: Unable to parse /home/ubuntu/ansible-
+network/inventories/lab/hosts.yml as an inventory source
+[WARNING]: No inventory was parsed, only implicit localhost is available
+[WARNING]: provided hosts list is empty, only localhost is available. Note that
+the implicit localhost does not match 'all'
+[WARNING]: Could not match supplied host pattern, ignoring: routers
+[WARNING]: Could not match supplied host pattern, ignoring: switches
+ansible-playbook [core 2.18.7]
+  config file = /home/ubuntu/ansible-network/ansible.cfg
+  configured module search path = ['/home/ubuntu/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /home/ubuntu/ansible-network/venv/lib/python3.12/site-packages/ansible
+  ansible collection location = /home/ubuntu/.ansible/collections:/usr/share/ansible/collections
+  executable location = /home/ubuntu/ansible-network/venv/bin/ansible-playbook
+  python version = 3.12.3 (main, Jun 18 2025, 17:59:45) [GCC 13.3.0] (/home/ubuntu/ansible-network/venv/bin/python)
+  jinja version = 3.1.6
+  libyaml = True
+Using /home/ubuntu/ansible-network/ansible.cfg as config file
+Skipping callback 'default', as we already have a stdout callback.
+Skipping callback 'minimal', as we already have a stdout callback.
+Skipping callback 'oneline', as we already have a stdout callback.
+
+PLAYBOOK: backup.yml ***********************************************************
+1 plays in /home/ubuntu/ansible-network/playbooks/backup.yml
+
+PLAY [Backup running-config via SSH (NAT R-W) - no become/authorize] ***********
+skipping: no hosts matched
+
+PLAY RECAP *********************************************************************
+
